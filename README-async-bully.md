@@ -26,7 +26,7 @@
 
   * the system eventually enter a state in which the leader is operational and all operational nodes have status Norm
 
-  * ldrElected = ( ∀*<sub>i</sub>* : *status<sub>i</sub>* = Norm ^ *up<sub>ldr</sub>* )
+  * ldrElected = ( ∀<sub>*i*</sub> : *status<sub>i</sub>* = Norm ^ *up<sub>ldr</sub>* )
 
   * SLE2
 
@@ -56,9 +56,9 @@
 
 ## Steps
 
-  * Each node*<sub>i</sub>* initialize its status to **Norm**
+  * Each node<sub>*i*</sub> initialize its status to **Norm**
 
-  * If node*<sub>i</sub>* detects failure of its leader, it sets its *status* to **Elec1**
+  * If node<sub>*i*</sub> detects failure of its leader, it sets its *status* to **Elec1**
 
       * Stage 1 of organizing an election
 
@@ -92,4 +92,8 @@
 
 # References
 
-  [1]. [Leader Election in Distributed Systems with Crash Failures](https://www3.cs.stonybrook.edu/~stoller/leader-election.html)
+  [1]. [1.4. Bully Algorithm](https://www.coursera.org/lecture/cloud-computing-2/1-4-bully-algorithm-K8QwJ)
+
+  [2]. [Elections in a Distributed Computing System](http://vis.usal.es/rodrigo/documentos/papers/BullyAlgorithm.pdf)
+
+  [2]. [Leader Election in Distributed Systems with Crash Failures](https://www3.cs.stonybrook.edu/~stoller/leader-election.html)
