@@ -44,9 +44,9 @@ case object Ack extends Message
   */
 object Node {
 
-  def id() = Random.nextInt & Int.MaxValue
+  def getId = Random.nextInt & Int.MaxValue
 
-  def apply(id: Int = id()): Node = Node(id = id)
+  def create(id: Int = getId): Node = Node(id = id)
 
 }
 case class Node(

@@ -14,5 +14,6 @@ PB.targets in Compile := Seq(
 libraryDependencies ++= Seq(
   "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
   "io.grpc" % "grpc-netty" % grpcVersion,
-  "dev.zio" %% "zio" % "1.0.4-2"
+  "dev.zio" %% "zio" % "1.0.4-2",
+  "org.scalatest" %% "scalatest" % "3.2.5" % "test"
 )

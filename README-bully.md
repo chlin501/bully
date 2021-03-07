@@ -30,6 +30,55 @@
 
   * A node never pauses and always responds to incoming messages with no delay.
 
+# Protocol
+
+  * Each ch node in the system is assigned at system creation time a unique identification number
+    
+      * Id is used as priority 
+      
+      * The highest id will become the coordinator
+    
+      * Id is between 1 ~ N where N (such that N is natural number)
+
+  * A node initializes the selection (in a scenario where the failure node won't be recovered)
+
+      * Part 1
+    
+          A. A node (*i*) contacts all nodes (*j*) whose ids are higher than its own (i < j < n such that n is the 
+            number of nodes in the system)
+            
+              * If any of nodes (*j*) responds 
+            
+                  * the node (*i*) gives up the chance to become the coordinator and wait for the announcement of higher 
+                    priority nodes (*j*) 
+        
+                  * but after some time no responce from some nodes (*j*), the node (*i*) restarts procedure from A
+                
+              * Otherwise (all higher priority nodes do NOT respond after T seconds)
+    
+                  * all ndoes (*j*) fail
+    
+      * Part 2
+    
+          * The node *i* sends `Halt` message to lower priority node *k*
+    
+              * Then the node *k* stop processing, and set its status to `Election`
+    
+          * Once all nodes are in a known states
+    
+              * The node *i* sends out "I am elected" message to the lower priority nodes 
+    
+                  * and sets its status to "Reorganization"
+    
+                  * and sets its coordinator to *i* (itself) 
+    
+              * The node *k* receives "I am elected" message, 
+    
+                  * the node *k* check if the `Halt` message is sent from node *i*
+     
+                  * the node *k* set its coordinator to *i*
+     
+                  * the node *k* set its status to "Reorganization"
 
 # References
 
