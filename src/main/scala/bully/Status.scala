@@ -1,9 +1,16 @@
 package bully
 
+/**
+  * Status transition is Down -> Election -> Reorganization -> Normal
+  * Election -> Reorganization during election procedure
+  * Reorganization -> Normal after code is distributed to the follower
+  * When a node fails and recovers
+  */
 sealed trait Status
 
 /**
   * The period will be lasted from the instant the node fails to that when an election begins.
+  * As soon as node *i* recovers from the failure, node *i* is reset to a fixed state where S(i).s equals "Down."
   */
 case object Down extends Status
 
