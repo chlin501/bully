@@ -32,7 +32,7 @@
 
 # Protocol
 
-  * Each ch node in the system is assigned at system creation time a unique identification number
+  * Each node in the system is assigned at system creation time a unique identification number
     
       * Id is used as priority 
       
@@ -44,7 +44,7 @@
 
       * Part 1
     
-          A. A node (*i*) contacts all nodes (*j*) whose ids are higher than its own (i < j < n such that n is the 
+          * A node (*i*) contacts all nodes (*j*) whose ids are higher than its own (i < j < n such that n is the 
             number of nodes in the system)
             
               * If any of nodes (*j*) responds 
@@ -72,13 +72,23 @@
     
                   * and sets its coordinator to *i* (itself) 
     
-              * The node *k* receives "I am elected" message, 
+              * The node *k* receives "I am elected" message 
     
                   * the node *k* check if the `Halt` message is sent from node *i*
      
                   * the node *k* set its coordinator to *i*
      
                   * the node *k* set its status to "Reorganization"
+    
+              * The election is over 
+                    
+                  * the node *i* set coordinator to *i* and status to "Reorganization"
+    
+              * During "Reorganization" phase
+    
+                  * The node *i* distributes new algorithms to the node *k* 
+    
+                  * All nodes set its own status to "Normal"
 
 # References
 

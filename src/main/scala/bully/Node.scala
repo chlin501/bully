@@ -9,7 +9,7 @@ case object Halt extends Message
 object Node {
 
   trait NodeP {
-    def receive(m: Message): IO[Exception, Unit]
+    def receive(m: Message): IO[Throwable, Unit]
 
     def create[I, O](id: Int = getId) = {
       def process(m: Message) =
