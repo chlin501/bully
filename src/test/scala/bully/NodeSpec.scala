@@ -15,21 +15,24 @@ class NodeSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "Node" should "receive message" in {
-    val nodeP = new NodeP {
-      override def receive(message: Message): IO[Throwable, Unit] =
+    val stateful = new StatefulNode {
+      override def receive(
+          status: bully.Status,
+          message: Message
+      ): IO[Throwable, Unit] =
         message match {
           case Halt =>
             assertResult(Halt)(message)
             IO.unit
         }
     }
-    val node = nodeP.create()
+    val node = stateful.create()
     val result = for {
       n <- node
       _ <- n ! Halt
-    } yield ()
+    } yield n
     val runtime = Runtime.default
-    runtime.unsafeRun(result)
+    runtime.unsafeRun(result.onExit { exit => URIO(exit.map(_.stop)) })
   }
 
 }

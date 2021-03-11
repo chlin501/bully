@@ -8,19 +8,22 @@ case object Halt extends Message
 
 object Node {
 
-  trait NodeP {
-    def receive(m: Message): IO[Throwable, Unit]
+  trait StatefulNode {
+    def receive(s: Status, m: Message): IO[Throwable, Unit]
 
-    def create[I, O](id: Int = getId) = {
-      def process(m: Message) =
+    def create[I, O](
+        id: Int = getId,
+        status: Status = Down
+    ) = {
+      def process(status: Status, message: Message) =
         for {
-          _ <- receive(m)
+          _ <- receive(status, message)
         } yield ()
       for {
         queue <- Queue.bounded[Message](requestedCapacity = 32)
         _ <- (for {
-            m <- queue.take
-            _ <- process(m)
+            message <- queue.take
+            _ <- process(status, message)
           } yield ()).forever.fork
       } yield new Node(id = Option(id), queue = queue)
     }
@@ -42,7 +45,6 @@ object Node {
 case class Node[I, O](
     id: Option[Int] = None,
     role: Option[Role] = None,
-    status: Status = Down,
     queue: Queue[Message],
     f: I => O = Node.defaultOps[I, O]
 ) {
@@ -51,5 +53,11 @@ case class Node[I, O](
     for {
       _ <- queue.offer(message)
     } yield message
+
+  def stop: Task[List[_]] =
+    for {
+      allTasks <- queue.takeAll
+      _ <- queue.shutdown
+    } yield allTasks
 
 }
