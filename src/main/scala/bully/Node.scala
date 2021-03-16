@@ -3,37 +3,61 @@ package bully
 import scala.util.Random
 import zio._
 
-sealed trait Message
-case object Halt extends Message
-
 object Node {
 
-  trait StatefulNode {
-    def receive(s: Status, m: Message): IO[Throwable, Unit]
+  case class State(
+      phase: Option[Phase] = None,
+      status: Option[Status] = None
+  ) {
+    def update(
+        transPhase: Option[Phase] => Option[Phase],
+        transStatus: Option[Status] => Option[Status]
+    ): IO[Throwable, Unit] = {
+      for {
+        newState <- IO.effect(
+          copy(phase = transPhase(phase), status = transStatus(status))
+        )
+      } yield newState
+    }
+  }
 
-    def create[I, O](
+  def defaultNode(): StatefulNode =
+    new StatefulNode {
+      override def receive(
+          state: State,
+          message: Message
+      ): IO[Throwable, Unit] = {
+        state.phase match {
+          case Some(_phase) =>
+            _phase match {
+              case Join(id)    => IO.unit
+              case ElectionRun => IO.unit
+            }
+          case None => IO.unit
+        }
+      }
+    }
+
+  trait StatefulNode {
+    def receive(status: State, message: Message): IO[Throwable, Unit]
+
+    def create(
         id: Int = getId,
-        status: Status = Down
-    ) = {
-      def process(status: Status, message: Message) =
+        initial: State = State()
+    ): ZIO[Any, Nothing, Node] = {
+      def process(state: State, message: Message): ZIO[Any, Throwable, Unit] =
         for {
-          _ <- receive(status, message)
+          _ <- receive(state, message)
         } yield ()
       for {
         queue <- Queue.bounded[Message](requestedCapacity = 32)
         _ <- (for {
             message <- queue.take
-            _ <- process(status, message)
+            _ <- process(initial, message)
           } yield ()).forever.fork
       } yield new Node(id = Option(id), queue = queue)
     }
   }
-
-  def defaultOps[I, O] =
-    (in: I) => {
-      println("Default operation ...")
-      ().asInstanceOf[O]
-    }
 
   /**
     * Id value is between 1 and N
@@ -42,11 +66,10 @@ object Node {
   def getId: Int = Random.nextInt() & Int.MaxValue
 
 }
-case class Node[I, O](
+case class Node(
     id: Option[Int] = None,
     role: Option[Role] = None,
-    queue: Queue[Message],
-    f: I => O = Node.defaultOps[I, O]
+    queue: Queue[Message]
 ) {
 
   def !(message: Message): UIO[Message] =
